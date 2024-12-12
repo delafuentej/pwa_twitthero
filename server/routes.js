@@ -1,6 +1,7 @@
 // Routes.js - Módulo de rutas
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
+const push = require("./push.js");
 
 const messages = [
   {
@@ -50,6 +51,27 @@ router.post("/", function (req, res) {
   messages.push(message);
   console.log(messages);
   res.json({ ok: true, message });
+});
+
+// NOTIFICATIONS
+
+//  to store the subscription => to receive
+//the subscription object & to store it in the db
+router.post("/subscribe", function (req, res) {
+  res.json("subscribe");
+});
+// to obtain the public key=> to send the public key to the clients
+//so that it can be processed by the clients and the subscription can be sent to us.
+router.get("/key", function (req, res) {
+  const key = push.getKey();
+  res.send(key);
+});
+
+// to send "push" notifications => to be able to send push notifications via postmann
+// It is not normally handled as a service rest
+//but is normally controlled from the server side.
+router.post("/push", function (req, res) {
+  res.json("push notification");
 });
 
 module.exports = router;

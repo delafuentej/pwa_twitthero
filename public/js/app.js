@@ -1,12 +1,29 @@
 var url = window.location.href;
 var swLocation = "/twittor/sw.js";
+var swRegister;
 
 if (navigator.serviceWorker) {
   if (url.includes("localhost")) {
     swLocation = "/sw.js";
   }
 
-  navigator.serviceWorker.register(swLocation);
+  //to make the sw registration when the web page is already loaded
+
+  window.addEventListener("load", function () {
+    //when the sw handles the subscription of notifications,
+    //it is necessary to work with the same sw registry
+    navigator.serviceWorker
+      .register(swLocation)
+      .then(function (reg) {
+        swRegister = reg;
+        //once the web browser is loaded, check that you are subscribed to the notifications:
+        swRegister.pushManager.getSubscription().then(checkSubscription);
+        console.log("SW sucessfully registered");
+      })
+      .catch((error) => {
+        console.log("Error SW registration", error);
+      });
+  });
 }
 
 // Referencias de jQuery
@@ -24,8 +41,13 @@ var modalAvatar = $("#modal-avatar");
 var avatarBtns = $(".seleccion-avatar");
 var txtMensaje = $("#txtMensaje");
 
+var btnNotifyActivated = $(".btn-noti-activadas");
+var btnNotifyDeactivated = $(".btn-noti-desactivadas");
+
 // El usuario, contiene el ID del hÃ©roe seleccionado
 var usuario;
+
+//const { application } = require("express");
 
 // ===== Codigo de la aplicaciÃ³n
 
@@ -188,3 +210,108 @@ window.addEventListener("online", isOnline);
 window.addEventListener("offline", isOnline);
 
 isOnline();
+
+//Notifications
+
+//check subscription
+
+function checkSubscription(enabled) {
+  if (enabled) {
+    btnNotifyActivated.removeClass("oculto");
+    btnNotifyDeactivated.addClass("oculto");
+  } else {
+    btnNotifyActivated.addClass("oculto");
+    btnNotifyDeactivated.removeClass("oculto");
+  }
+}
+
+function sendNotification() {
+  const notificationOpts = {
+    body: "Notification Body",
+    icon: "/img/icons/icon-72x72.png",
+  };
+  const notification = new Notification("Welcome!!!", notificationOpts);
+
+  notification.onclick = () => {
+    console.log("Click");
+  };
+}
+
+//-function for requesting notifications
+function requestingNotifications() {
+  //1.Check if the web browser supports notifications
+  if (!window.Notification) {
+    alert("Web browser does not support notifications");
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    //new Notification("Notifications - granted");
+    sendNotification();
+  } else if (
+    Notification.permission !== "denied" ||
+    Notification.permission === "default"
+  ) {
+    Notification.requestPermission(function (permission) {
+      console.log("permission", permission);
+
+      if (permission === "granted") {
+        //new Notification("Notifications - granted");
+        sendNotification();
+      } else {
+        console.warn("Notification permits not granted");
+      }
+    });
+  }
+}
+
+requestingNotifications();
+
+// to get the public key
+function getPublicKey() {
+  
+    // fetch("api/key")
+    //     .then( res => res.text())
+    //     then(console.log)
+    return fetch('api/key')
+      .then(res => res.arrayBuffer())
+      .then(key => new Uint8Array(key));
+     
+
+}
+//getPublicKey().then(console.log)
+
+
+
+//start the whole subscription process when the customer
+// clicks on the btn: btnNotifyDeactivated:
+console.log(btnNotifyDeactivated)
+btnNotifyDeactivated.on("click", function () {
+  if (!swRegister) return console.log("SW has not been registered");
+
+  // if SW has not been registered, the public key is needed
+  // to create the registration in the SW:
+  getPublicKey().then(function (key) {
+    // const applicationServerKey = urlBase64ToUint8Array(key)
+    // console.log(
+    //   "swRegister",
+    //   swRegister.pushManager.subscribe({
+    //     userVisibleOnly: true,
+    //     applicationServerKey: applicationServerKey,
+    //   })
+    // );
+    swRegister.pushManager
+      .subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: key,
+      })
+      .then((res) => res.toJSON())
+      .then((subscription) => {
+        console.log("subscription", subscription);
+        checkSubscription(subscription);
+      });
+    // .catch((error) => {
+    //   console.error("Error subscription XXXX", error);
+    // });
+  });
+});
