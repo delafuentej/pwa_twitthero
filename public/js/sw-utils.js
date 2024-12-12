@@ -25,8 +25,13 @@ function actualizaCacheStatico(staticCache, req, APP_SHELL_INMUTABLE) {
 }
 //Cache Estrategy: "Network with Cache Fallback / Update"
 function handleApiMessages(dynamicCache, req) {
-  if (req.clone().method === "POST") {
-    // POSTING NEW MESSAGE
+
+  //so that all requests for these services('/api/key' |'/api/subscribe') are passed directly to the network.
+  if((req.url.indexOf('/api/key') >= 0) || (req.url.indexOf('/api/subscribe') >= 0) ){
+    return fetch(req);
+  }else if (req.clone().method === "POST") {
+
+        // POSTING NEW MESSAGE
 
     //as the “synchronization background- syncmanager” technology
     //is only supported by few browsers => a condition is needed;
@@ -63,4 +68,5 @@ function handleApiMessages(dynamicCache, req) {
         return caches.match(req);
       });
   }
+
 }

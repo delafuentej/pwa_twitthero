@@ -216,6 +216,7 @@ isOnline();
 //check subscription
 
 function checkSubscription(enabled) {
+  console.log('enabled', enabled)
   if (enabled) {
     btnNotifyActivated.removeClass("oculto");
     btnNotifyDeactivated.addClass("oculto");
@@ -307,7 +308,17 @@ btnNotifyDeactivated.on("click", function () {
       })
       .then((res) => res.toJSON())
       .then((subscription) => {
-        console.log("subscription", subscription);
+        //console.log("subscription", subscription);
+
+        // posting subscription:  
+            fetch('api/subscribe', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(subscription)
+            }).then(checkSubscription)
+            .catch(console.log)
+
+
         checkSubscription(subscription);
       });
     // .catch((error) => {

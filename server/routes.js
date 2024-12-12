@@ -58,6 +58,10 @@ router.post("/", function (req, res) {
 //  to store the subscription => to receive
 //the subscription object & to store it in the db
 router.post("/subscribe", function (req, res) {
+  const subscription = req.body;
+  console.log('subscription',subscription)
+  //to make a collection all subscriptions:
+  push.addSubscription(subscription);
   res.json("subscribe");
 });
 // to obtain the public key=> to send the public key to the clients
