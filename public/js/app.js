@@ -216,7 +216,7 @@ isOnline();
 //check subscription
 
 function checkSubscription(enabled) {
-  console.log('enabled', enabled)
+ // console.log('enabled', enabled)
   if (enabled) {
     btnNotifyActivated.removeClass("oculto");
     btnNotifyDeactivated.addClass("oculto");
@@ -316,13 +316,25 @@ btnNotifyDeactivated.on("click", function () {
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify(subscription)
             }).then(checkSubscription)
-            .catch(console.log)
+            .catch(cancelSubscription)
 
 
-        checkSubscription(subscription);
+       //checkSubscription(subscription);
       });
     // .catch((error) => {
     //   console.error("Error subscription XXXX", error);
     // });
   });
 });
+
+// cancel subscription from frontend
+
+function cancelSubscription(){
+  swRegister.pushManager.getSubscription().then(subscription => {
+    subscription.unsubscribe().then(()=> checkSubscription(false));
+  })
+}
+
+btnNotifyActivated.on('click', function(){
+  cancelSubscription();
+})
