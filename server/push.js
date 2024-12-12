@@ -14,7 +14,7 @@ webpush.setVapidDetails(
 
 //to maintain subscriptions when upgrading the browser
 //const subscriptions = [];
-const subscriptions = require('./subscriptions-db.json');
+let subscriptions = require('./subscriptions-db.json');
 
 module.exports.getKey = () => {
   console.log('keyWWW', urlsafeBase64.decode(vapid.publicKey))
@@ -31,7 +31,24 @@ module.exports.addSubscription = (subscription) => {
 
 module.exports.sendPush = (post) => {
   //sent push message to all suscriptions
+
+  let sendedNotifications = [];
+
   subscriptions.forEach((subscription, i) =>{
-    webpush.sendNotification(subscription, post.title);
+    const pushPromises = webpush.sendNotification(subscription, JSON.stringify(post))
+        .then(console.log('Notification sended'))
+        .catch(err => {
+          console.log('Notification failed!!');
+
+          if(err.statusCode === 410){
+            subscriptions[i].delete = true;
+          }
+    });
+    sendedNotifications.push(pushPromises);
+  })
+  Promise.all(sendedNotifications).then(()=> {
+    subscriptions = subscriptions.filter(subs => !subs.delete);
+
+    fs.writeFileSync(`${__dirname}/subscriptions-db.json`, JSON.stringify(subscriptions))
   })
 }

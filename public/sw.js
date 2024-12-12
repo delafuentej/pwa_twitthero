@@ -94,12 +94,74 @@ self.addEventListener("sync", (e) => {
 
 // listen push notifications
 self.addEventListener('push', e => {
-  console.log('event',e),
-  console.log('event.text',e.data.text())
+  // console.log('event',e),
+  // console.log('event.text',e.data.text())
 
-  const title = e.data.text();
-  const options = {};
+  const data = JSON.parse(e.data.text())
+
+  //console.log('data',data)
+
+  const title = data.title;
+  const options = {
+    body: data.message,
+    icon: `img/avatars/${data.user}.jpg`,
+    badge: 'img/favi.ico',
+    image: 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/1ebd221d-3581-4775-8f4c-086c377bc4c3/dei490i-dba37ddf-db8f-460b-8685-a58aedad2f09.png/v1/fit/w_828,h_1242/avengers_tower_png_by_docbuffflash82_dei490i-414w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTUwMCIsInBhdGgiOiJcL2ZcLzFlYmQyMjFkLTM1ODEtNDc3NS04ZjRjLTA4NmMzNzdiYzRjM1wvZGVpNDkwaS1kYmEzN2RkZi1kYjhmLTQ2MGItODY4NS1hNThhZWRhZDJmMDkucG5nIiwid2lkdGgiOiI8PTEwMDAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.VLZpR0fc541wuGTAcL1uBo5iCM6h_GC6XsBq8kZJTE8',
+    vibrate: [100,200,100,200,100,200,100,200,100,100,100,100,100,200,100,200,100,200,100,200,100,100,100,100,100,200,100,200,100,200,100,200,100,100,100,100,100,100,100,100,100,100,50,50,100,800],
+    openUrl: '/',
+    data: {
+      // url: 'https://google.com',
+      url: '/',
+      id: data.user,
+
+    },
+    actions:[
+      {
+        action: 'superman-action',
+        title: 'Superman',
+        icon:'img/avatars/superman.jpg',
+      },
+      {
+        action: 'batman-action',
+        title: 'Batman',
+        icon:'img/avatars/batman.jpg',
+      },
+
+    ]
+  };
 
   //
   e.waitUntil(self.registration.showNotification(title, options))
+});
+
+// when a notification is closed
+self.addEventListener('notificatonclose', e => {
+  console.log('Notification closed!!',e);
+});
+
+// when the user interacts with notification
+self.addEventListener('notificationclick',e => {
+    const notification = e.notification;
+    const action = e.action;
+    // console.log({notification, action})
+
+    //clients => allTabs in the app
+   const response = clients.matchAll().then(clients =>{
+      let client = clients.find( c => {
+        return c.visibilityState === 'visible';
+      });
+
+      if( client !== undefined){
+        client.navigate(notification.data.url);
+        client.focus();// active tab
+      }else{
+        clients.openWindow(notification.data.url);
+      }
+
+      return notification.close();
+    })
+    
+
+   e.waitUntil(response);
+
 })

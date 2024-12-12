@@ -48,6 +48,10 @@ router.post("/", function (req, res) {
     message: req.body.message,
     user: req.body.user,
   };
+
+  //when the hero sends a message in the chat the heroes receive push notifications
+  push.sendPush(message);
+
   messages.push(message);
   console.log(messages);
   res.json({ ok: true, message });
@@ -76,13 +80,13 @@ router.get("/key", function (req, res) {
 //but is normally controlled from the server side.
 router.post("/push", function (req, res) {
   //when you call the  service ('/push), info is obtained from post
-  const notification = {
+  const post = {
     title: req.body.title,
     message: req.body.message,
     user: req.body.user
   }
-  push.sendPush(notification);
-  res.json(notification);
+  push.sendPush(post);
+  res.json(post);
 });
 
 module.exports = router;

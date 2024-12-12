@@ -9,6 +9,7 @@ It is a continuation of the repository: https://github.com/delafuentej/my-first-
     - Manifest.json file
     - Management of the local database IndexedDB through the PouchDB library.
     - Offline Synchronization.
+    - Subscriptions & Push Notifications. 
 
 ## Note:
 
@@ -22,7 +23,14 @@ Remember that you must rebuild the node modules with the command
 git clone https://github.com/delafuentej/pwa_twitthero.git
 ```
 
-2. Create a copy of the file `.env.template` and rename it to `.env`, and modify the environmet variables.
+2. Create a copy of the file `.env.template` and rename it to `.env`, and modify the environmet variables, in order to complete the subscription process.
+
+```
+PORT=
+
+VAPID_KEYS_CONFIG_EMAIL=your_email_address
+
+```
 
 3. Install dependencies:
 
@@ -30,13 +38,15 @@ git clone https://github.com/delafuentej/pwa_twitthero.git
 npm install
 ```
 
-4. Launch the app in prod mode:
+4. Execute the command ```npm run generate-vapid``` to generate the file ' server/vapid.json' with  the ```publicKey``` & ```privateKey```.
+
+5. Launch the app in prod mode:
 
 ```
 npm start
 ```
 
-5. Launch the app in prod mode:
+6. Launch the app in prod mode:
 
 ```
 npm run dev
