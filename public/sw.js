@@ -91,3 +91,15 @@ self.addEventListener("sync", (e) => {
     e.waitUntil(response);
   }
 });
+
+// listen push notifications
+self.addEventListener('push', e => {
+  console.log('event',e),
+  console.log('event.text',e.data.text())
+
+  const title = e.data.text();
+  const options = {};
+
+  //
+  e.waitUntil(self.registration.showNotification(title, options))
+})

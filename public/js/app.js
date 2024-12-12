@@ -26,6 +26,11 @@ if (navigator.serviceWorker) {
   });
 }
 
+if ('serviceWorker' in navigator && 'PushManager' in window) {
+  console.log('El navegador admite Service Workers y Push API.');
+} else {
+  console.error('El navegador no admite notificaciones push.');
+}
 // Referencias de jQuery
 
 var titulo = $("#titulo");

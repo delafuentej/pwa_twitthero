@@ -75,7 +75,14 @@ router.get("/key", function (req, res) {
 // It is not normally handled as a service rest
 //but is normally controlled from the server side.
 router.post("/push", function (req, res) {
-  res.json("push notification");
+  //when you call the  service ('/push), info is obtained from post
+  const notification = {
+    title: req.body.title,
+    message: req.body.message,
+    user: req.body.user
+  }
+  push.sendPush(notification);
+  res.json(notification);
 });
 
 module.exports = router;
