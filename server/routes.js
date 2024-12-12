@@ -54,7 +54,7 @@ router.post("/", function (req, res) {
 });
 
 // NOTIFICATIONS
-
+  
 //  to store the subscription => to receive
 //the subscription object & to store it in the db
 router.post("/subscribe", function (req, res) {
