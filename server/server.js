@@ -10,8 +10,9 @@ const publicPath = path.resolve(__dirname, "../public");
 const port = process.env.PORT || 3000;
 console.log(port);
 
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
+app.use(bodyParser.json({limit: '10mb'})); // support json encoded bodies
+app.use(bodyParser.urlencoded({limit:'10mb', extended: true })); // support encoded bodies
 
 //Enable CORS
 app.use(function (req, res, next) {
@@ -36,6 +37,10 @@ app.use(express.static(publicPath));
 // Rutas
 const routes = require("./routes");
 app.use("/api", routes);
+
+app.get('/api/google-map-key', (req, res) => {
+  res.json({ key: process.env.GOOGLE_MAP_KEY }); // Lee la clave del archivo .env
+});
 
 app.listen(port, (err) => {
   if (err) throw new Error(err);

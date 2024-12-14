@@ -10,6 +10,8 @@ It is a continuation of the repository: https://github.com/delafuentej/my-first-
     - Management of the local database IndexedDB through the PouchDB library.
     - Offline Synchronization.
     - Subscriptions & Push Notifications. 
+    - Use of Native Resources: Geolocalization, Camera (take a picture).
+    - Share API.
 
 ## Note:
 

@@ -4,7 +4,7 @@ importScripts("https://cdn.jsdelivr.net/npm/pouchdb@9.0.0/dist/pouchdb.min.js");
 importScripts("js/sw-db.js");
 importScripts("js/sw-utils.js");
 
-const STATIC_CACHE = "static-v4";
+const STATIC_CACHE = "static-v5";
 const DYNAMIC_CACHE = "dynamic-v1";
 const INMUTABLE_CACHE = "inmutable-v1";
 
@@ -19,9 +19,11 @@ const APP_SHELL = [
   "img/avatars/thor.jpg",
   "img/avatars/wolverine.jpg",
   "js/app.js",
+  'js/cam-class.js',
   "js/sw-utils.js",
   "js/libs/plugins/mdtoast.min.css",
   "js/libs/plugins/mdtoast.min.js",
+ 
 ];
 
 const APP_SHELL_INMUTABLE = [

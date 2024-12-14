@@ -44,9 +44,16 @@ router.get("/", function (req, res) {
 });
 //POST MESSAGES
 router.post("/", function (req, res) {
+
+// console.log('latitude', req.body.lat);
+// console.log('longuitude', req.body.lng);
+
   const message = {
     message: req.body.message,
     user: req.body.user,
+    lat: req.body.lat,
+    lng: req.body.lng,
+    photo: req.body.photo
   };
 
   //when the hero sends a message in the chat the heroes receive push notifications

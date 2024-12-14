@@ -1,3 +1,4 @@
+
 var url = window.location.href;
 var swLocation = "/twittor/sw.js";
 var swRegister;
@@ -26,13 +27,45 @@ if (navigator.serviceWorker) {
   });
 }
 
+//const googleMapKey = process.env.GOOGLE_MAP_KEY;
+
+var googleMapKey = null;
+
+fetch('/api/google-map-key')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Error obteniendo Google Map Key');
+    }
+    return response.json(); // Convertir la respuesta en JSON
+  })
+  .then(data => {
+    googleMapKey = data.key;
+    console.log('Google Map Key:', googleMapKey);
+
+    // Ahora puedes usar la clave para inicializar mapas u otras funciones
+    initGoogleMaps(googleMapKey);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+
+// Ejemplo de función que utiliza la clave
+function initGoogleMaps(apiKey) {
+  console.log('Inicializando Google Maps con la clave:', apiKey);
+  // Aquí podrías inicializar cualquier funcionalidad relacionada con Google Maps
+}
+
+
+
 if ('serviceWorker' in navigator && 'PushManager' in window) {
   console.log('El navegador admite Service Workers y Push API.');
 } else {
   console.error('El navegador no admite notificaciones push.');
 }
-// Referencias de jQuery
 
+
+
+// References de jQuery
 var titulo = $("#titulo");
 var nuevoBtn = $("#nuevo-btn");
 var salirBtn = $("#salir-btn");
@@ -49,16 +82,41 @@ var txtMensaje = $("#txtMensaje");
 var btnNotifyActivated = $(".btn-noti-activadas");
 var btnNotifyDeactivated = $(".btn-noti-desactivadas");
 
+
+var btnLocation      = $('#location-btn');
+
+var modalMapa        = $('.modal-mapa');
+
+var btnTomarFoto     = $('#tomar-foto-btn');
+var btnPhoto         = $('#photo-btn');
+var containerCam = $('.camara-contenedor');
+
+var lat  = null;
+var lng  = null; 
+var photo = null; 
+
+
+
 // El usuario, contiene el ID del hÃ©roe seleccionado
 var usuario;
+
+
+//create an instance of the cam class
+//document.getElementById('player');
+const cam = new Cam($('#player')[0]);
 
 //const { application } = require("express");
 
 // ===== Codigo de la aplicaciÃ³n
 
-function crearMensajeHTML(mensaje, personaje) {
+function crearMensajeHTML(mensaje, personaje, lat, lng, photo) {
   var content = `
-    <li class="animated fadeIn fast">
+    <li class="animated fadeIn fast"
+      data-tipo="mensaje"
+      data-message="${mensaje}"
+      data-user="${ personaje }"
+      >
+
         <div class="avatar">
             <img src="img/avatars/${personaje}.jpg">
         </div>
@@ -67,16 +125,69 @@ function crearMensajeHTML(mensaje, personaje) {
                 <h3>@${personaje}</h3>
                 <br/>
                 ${mensaje}
-            </div>
-            
+           
+    `;
+    if(photo){
+      content += `
+      <br>
+      <img class="foto-mensaje" src="${photo}">
+      `;
+
+    }
+      content += ` </div>
             <div class="arrow"></div>
         </div>
-    </li>
-    `;
+    </li>`;
+   
+    // si existe la latitud y longitud, 
+    // llamamos la funcion para crear el mapa
+    if ( lat ) {
+      crearMensajeMapa( lat, lng, personaje );
+  }
+
+    // Borramos la latitud y longitud por si las usó
+    lat = null;
+    lng = null;
+
+    $('.modal-mapa').remove();
 
   timeline.prepend(content);
   cancelarBtn.click();
 }
+
+
+function crearMensajeMapa(lat, lng, personaje) {
+
+
+  let content = `
+  <li class="animated fadeIn fast"
+      data-tipo="mapa"
+      data-user="${ personaje }"
+      data-lat="${ lat }"
+      data-lng="${ lng }">
+              <div class="avatar">
+                  <img src="img/avatars/${ personaje }.jpg">
+              </div>
+              <div class="bubble-container">
+                  <div class="bubble">
+                      <iframe
+                          width="100%"
+                          height="250"
+                          frameborder="0" style="border:0"
+                          src="https://www.google.com/maps/embed/v1/view?key=${ googleMapKey }&center=${ lat },${ lng }&zoom=17" allowfullscreen>
+                          </iframe>
+                  </div>
+                  
+                  <div class="arrow"></div>
+              </div>
+          </li> 
+  `;
+
+  timeline.prepend(content);
+}
+
+
+
 
 // Globals
 function logIn(ingreso) {
@@ -154,6 +265,9 @@ postBtn.on("click", function () {
     _id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
     message: mensaje,
     user: usuario,
+    lat: lat,
+    lng: lng,
+    photo: photo,
   };
   //fetch(`http://localhost:${PORT}/api`, {
   fetch(`http://localhost:${PORT}/api`, {
@@ -167,7 +281,9 @@ postBtn.on("click", function () {
     .then((res) => console.log("app.js", res))
     .catch((err) => console.log("POST app.js error", err));
 
-  crearMensajeHTML(mensaje, usuario);
+  crearMensajeHTML(mensaje, usuario, lat, lng, photo);
+
+  photo = null;
 });
 
 // to obtain messages from server
@@ -175,8 +291,12 @@ const getAllMessages = async () => {
   await fetch(`http://localhost:${PORT}/api`)
     .then((res) => res.json())
     .then((posts) => {
+      console.log('posts', posts)
       posts.forEach((post) => {
-        crearMensajeHTML(post.message, post.user);
+        console.log('post.message',post.message)
+        console.log('post.user',post.user)
+        
+        crearMensajeHTML(post.message, post.user, post.lat, post.lng);
       });
     });
   // console.log("messages", messages);
@@ -343,3 +463,120 @@ function cancelSubscription(){
 btnNotifyActivated.on('click', function(){
   cancelSubscription();
 })
+
+
+// Crear mapa en el modal
+function showMapModal(lat, lng) {
+
+  $('.modal-mapa').remove();
+  
+  var content = `
+          <div class="modal-mapa">
+              <iframe
+                  width="100%"
+                  height="250"
+                  frameborder="0"
+                  src="https://www.google.com/maps/embed/v1/view?key=${ googleMapKey }&center=${ lat },${ lng }&zoom=17" allowfullscreen>
+                  </iframe>
+          </div>
+  `;
+
+  modal.append( content );
+}
+
+
+// Sección 11 - Recursos Nativos
+
+
+// Obtener la geolocalización
+btnLocation.on('click', () => {
+
+  $.mdtoast('Loading Coordinates...',{
+    interaction:true,
+    interactionTimeout:2000,
+    actionText:'OK!'
+  })
+
+      // check for Geolocation support
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+            showMapModal(pos.coords.latitude, pos.coords.longitude);
+
+            lat= pos.coords.latitude;
+            lng= pos.coords.longitude;
+      })
+    } else {
+      console.log('Geolocation is not supported for this Browser/OS.');
+    }
+  
+
+});
+
+
+
+// Boton de la camara
+// usamos la funcion de fleca para prevenir
+// que jQuery me cambie el valor del this
+btnPhoto.on('click', () => {
+
+  containerCam.removeClass('oculto');
+
+  cam.turnOn();
+
+});
+
+
+//btn to take the photo
+btnTomarFoto.on('click', () => {
+
+  //to take the photo from cam
+  photo = cam.takePhoto();
+
+  cam.turnOff();
+
+  
+  // console.log('foto',photo);
+});
+
+
+// Share API
+if(navigator.share){
+  console.log("Support it!!!")
+}else{
+  console.log('does not suppot it')
+}
+
+
+timeline.on('click', 'li', function(){
+  
+  //obtain all the node:
+  // console.log($(this));
+  // console.log('data-tipo',$(this).data('tipo'));
+  // console.log('data-user',$(this).data('user'));
+
+
+  let type = $(this).data('tipo');
+  let lat = $(this).data('lat');
+  let lng =  $(this).data('lng');
+  let message = $(this).data('message');
+  let user = $(this).data('user');
+
+  console.log({type, lat, lng, message, user});
+
+  const shareOptions = {
+      title: user,
+      text: message,
+
+  }
+
+  if(type === 'mapa'){
+    shareOptions.text = 'mapa',
+    shareOptions.url = `https://www.google.com/maps/@${lat},${lng},${15}z`
+  }
+
+  if (navigator.share) {
+    navigator.share(shareOptions)
+      .then(() => console.log('Successful share'))
+      .catch((error) => console.log('Error sharing', error));
+  }
+});
