@@ -27,26 +27,24 @@ if (navigator.serviceWorker) {
   });
 }
 
-//const googleMapKey = process.env.GOOGLE_MAP_KEY;
+
 
 var googleMapKey = null;
-// to obtain the googleMapKey
+// to obtain the googleMapKey from .env file
 fetch('/api/google-map-key')
   .then(response => {
     if (!response.ok) {
-      throw new Error('Error obteniendo Google Map Key');
+      throw new Error('Error getting Google Map Key');
     }
-    return response.json(); // Convertir la respuesta en JSON
+    return response.json(); 
   })
   .then(data => {
     googleMapKey = data.key;
-    console.log('Google Map Key:', googleMapKey);
+    //console.log('Google Map Key:', googleMapKey);
   })
   .catch(error => {
     console.error('Error:', error);
   });
-
-
 
 
 if ('serviceWorker' in navigator && 'PushManager' in window) {
