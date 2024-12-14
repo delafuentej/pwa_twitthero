@@ -30,7 +30,7 @@ if (navigator.serviceWorker) {
 //const googleMapKey = process.env.GOOGLE_MAP_KEY;
 
 var googleMapKey = null;
-
+// to obtain the googleMapKey
 fetch('/api/google-map-key')
   .then(response => {
     if (!response.ok) {
@@ -41,19 +41,11 @@ fetch('/api/google-map-key')
   .then(data => {
     googleMapKey = data.key;
     console.log('Google Map Key:', googleMapKey);
-
-    // Ahora puedes usar la clave para inicializar mapas u otras funciones
-    initGoogleMaps(googleMapKey);
   })
   .catch(error => {
     console.error('Error:', error);
   });
 
-// Ejemplo de función que utiliza la clave
-function initGoogleMaps(apiKey) {
-  console.log('Inicializando Google Maps con la clave:', apiKey);
-  // Aquí podrías inicializar cualquier funcionalidad relacionada con Google Maps
-}
 
 
 

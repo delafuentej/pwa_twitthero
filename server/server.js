@@ -38,8 +38,9 @@ app.use(express.static(publicPath));
 const routes = require("./routes");
 app.use("/api", routes);
 
+//
 app.get('/api/google-map-key', (req, res) => {
-  res.json({ key: process.env.GOOGLE_MAP_KEY }); // Lee la clave del archivo .env
+  res.json({ key: process.env.GOOGLE_MAP_KEY }); // Reads the key of the .env file
 });
 
 app.listen(port, (err) => {
