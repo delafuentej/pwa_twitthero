@@ -1,14 +1,14 @@
 class Cam {
-    constructor(videoNode, photo){
+    constructor(videoNode){
         this.videoNode = videoNode;
-        this.photo = photo;
+        //this.photo = photo;
         console.log('cam class init');
     }
 
     // method turn on the cam
     turnOn(){
         if(navigator.mediaDevices){
-            console.log(navigator.media)
+            console.log('navigator.media',navigator.media)
             navigator.mediaDevices.getUserMedia({
                 audio: false,
                 video: {

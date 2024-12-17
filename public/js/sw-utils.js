@@ -24,7 +24,7 @@ function actualizaCacheStatico(staticCache, req, APP_SHELL_INMUTABLE) {
   }
 }
 //Cache Estrategy: "Network with Cache Fallback / Update"
-function handleApiMessages(dynamicCache, req) {
+function handleApiMessages(cacheName, req) {
 
   //so that all requests for these services('/api/key' |'/api/subscribe') are passed directly to the network.
   if((req.url.indexOf('/api/key') >= 0) || (req.url.indexOf('/api/subscribe') >= 0) ){
@@ -56,7 +56,7 @@ function handleApiMessages(dynamicCache, req) {
     return fetch(req)
       .then((res) => {
         if (res.ok) {
-          actualizaCacheDinamico(dynamicCache, req, res.clone());
+          actualizaCacheDinamico( cacheName, req, res.clone());
           return res.clone();
         } else {
           //return previous messages stored in the cache

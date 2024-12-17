@@ -117,6 +117,7 @@ function crearMensajeHTML(mensaje, personaje, lat, lng, photo) {
                 ${mensaje}
            
     `;
+
     if(photo){
       content += `
       <br>
@@ -252,13 +253,13 @@ postBtn.on("click", function () {
   }
 
   var data = {
-    _id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
     message: mensaje,
     user: usuario,
     lat: lat,
     lng: lng,
     photo: photo,
   };
+  console.log('data',data)
   //fetch(`http://localhost:${PORT}/api`, {
   fetch(`http://localhost:${PORT}/api`, {
     method: "POST",
@@ -286,7 +287,7 @@ const getAllMessages = async () => {
         console.log('post.message',post.message)
         console.log('post.user',post.user)
         
-        crearMensajeHTML(post.message, post.user, post.lat, post.lng);
+        crearMensajeHTML(post.message, post.user, post.lat, post.lng, post.photo);
       });
     });
   // console.log("messages", messages);

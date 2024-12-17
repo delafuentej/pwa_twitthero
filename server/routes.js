@@ -56,11 +56,14 @@ router.post("/", function (req, res) {
     photo: req.body.photo
   };
 
+  console.log('backend message.photo', message.photo);
+
+
   //when the hero sends a message in the chat the heroes receive push notifications
-  push.sendPush(message);
+ // push.sendPush(message);
 
   messages.push(message);
-  console.log(messages);
+  console.log('messagesXXXXXX',messages);
   res.json({ ok: true, message });
 });
 
